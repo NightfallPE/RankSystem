@@ -1,0 +1,21 @@
+ranks:
+  member:
+    id: "member"
+    name: "Member"
+    permissions: []
+    prefix: "§fMember"
+    isDefault: true
+  admin:
+    id: "admin"
+    name: "Admin"
+    prefix: "§4Admin"
+    isStaff: true
+    priority: 90
+  owner:
+    id: "owner"
+    name: "Owner"
+    prefix: "§4Owner"
+    isStaff: true
+    inherit:
+      - admin
+    priority: 100

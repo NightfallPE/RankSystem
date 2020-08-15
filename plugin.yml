@@ -1,0 +1,7 @@
+---
+name: RankSystem
+author: AndreasHGK
+version: 0.0.1
+main: AndreasHGK\RankSystem\RankSystem
+api: 4.0.0
+...
