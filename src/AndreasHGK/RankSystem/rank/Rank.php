@@ -21,27 +21,32 @@ class Rank {
             $data["inherit"] ?? [],
             $data["isDefault"] ?? false,
             $data["priority"] ?? 1,
+            $data["vaults"] ?? 0,
+            $data["plots"] ?? 0,
         );
     }
 
-    /** @var string */
-    private $id;
-    /** @var string */
-    private $name;
+    private string $id;
+
+    private string $name;
     /** @var string[] */
-    private $permissions = [];
-    /** @var string */
-    private $prefix;
+    private array $permissions = [];
+
+    private string $prefix;
     /** @var string[] */
-    private $inherit = [];
-    /** @var bool */
-    private $isStaff = false;
-    /** @var bool */
-    private $isDonator = false;
-    /** @var bool */
-    private $isDefault = false;
-    /** @var int */
-    private $priority = 1;
+    private array $inherit = [];
+
+    private bool $isStaff = false;
+
+    private bool $isDonator = false;
+
+    private bool $isDefault = false;
+
+    private int $priority = 1;
+
+    private int $vaults = 0;
+
+    private int $plots = 0;
 
     public function __construct(
         string $id,
@@ -52,7 +57,9 @@ class Rank {
         bool $isDonator = false,
         array $inherit = [],
         bool $isDefault = false,
-        int $priority = 1
+        int $priority = 1,
+        int $vaults = 0,
+        int $plots = 0
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -63,6 +70,8 @@ class Rank {
         $this->isDonator = $isDonator;
         $this->isDefault = $isDefault;
         $this->priority = $priority;
+        $this->vaults = $vaults;
+        $this->plots = $plots;
     }
 
     /**
@@ -99,7 +108,11 @@ class Rank {
      * @return string[]
      */
     public function getAllPermissions() : array {
-        return $this->getPermissions();
+        $perm = $this->getPermissions();
+        foreach($this->getInherit() as $inherit) {
+            $perm = array_merge($perm, $inherit->getAllPermissions());
+        }
+        return $perm;
     }
 
     /**
@@ -173,6 +186,20 @@ class Rank {
      */
     public function getPriority() : int {
         return $this->priority;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPlots() : int {
+        return $this->plots;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVaults() : int {
+        return $this->vaults;
     }
 
 }

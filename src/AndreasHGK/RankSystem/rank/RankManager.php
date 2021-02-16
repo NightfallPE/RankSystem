@@ -11,12 +11,26 @@ class RankManager {
 
     /** @var Rank[] */
     private $ranks = [];
+    /** @var RankInstance[] */
+    private array $defaultRanks = [];
 
     /**
      * Load the ranks from data
      */
     public function load() : void {
         $this->ranks = RankSystem::getInstance()->getRankProvider()->loadRanks();
+        foreach($this->ranks as $rank) {
+            if($rank->isDefault()) {
+                $this->defaultRanks[$rank->getId()] = RankInstance::create($rank, -1, true);
+            }
+        }
+    }
+
+    /**
+     * @return RankInstance[]
+     */
+    public function getDefaultRanks() : array {
+        return $this->defaultRanks;
     }
 
     /**

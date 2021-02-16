@@ -10,14 +10,31 @@ use AndreasHGK\RankSystem\RankSystem;
 use pocketmine\permission\Permissible;
 use pocketmine\permission\PermissionAttachment;
 use pocketmine\player\IPlayer;
+use pocketmine\player\Player;
 
-class Session extends OfflineSession {
+class OnlineRankComponent extends RankComponent {
+
+    public static function fromData(array $data, IPlayer $player) : RankComponent {
+
+        if($player instanceof Player) {
+            $component = new OnlineRankComponent($player, []);
+        }else{
+            $component = new RankComponent($player, []);
+        }
+        foreach($data["ranks"] ?? [] as $rank) {
+            $component->addRank(RankInstance::fromData($rank));
+        }
+        return $component;
+    }
 
     /** @var PermissionAttachment */
     private $attachments = [];
 
     public function __construct(IPlayer $player, array $ranks) {
         parent::__construct($player, $ranks);
+        foreach(RankSystem::getInstance()->getRankManager()->getDefaultRanks() as $defaultRank) {
+            $this->addAttachment($defaultRank->getRank());
+        }
     }
 
     /**
@@ -70,7 +87,7 @@ class Session extends OfflineSession {
         if(!$player instanceof Permissible) return;
 
         $attachment = $player->addAttachment(RankSystem::getInstance());
-        foreach($rank->getPermissions() as $permission) {
+        foreach($rank->getAllPermissions() as $permission) {
             if($permission[0] === "-") {
                 $attachment->setPermission(ltrim($permission, "-"), false);
             }else{

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AndreasHGK\RankSystem\rank;
 
+use AndreasHGK\RankSystem\RankSystem;
+
 class RankInstance {
 
     /**
@@ -24,7 +26,8 @@ class RankInstance {
      * @return RankInstance
      */
     public static function fromData(array $data) : RankInstance {
-        //todo implement this
+        $rank = RankSystem::getInstance()->getRankManager()->get($data["rankId"]);
+        return new RankInstance($rank, $data["expire"], $data["isPersistant"]);
     }
 
     /** @var Rank */

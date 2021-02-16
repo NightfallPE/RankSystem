@@ -6,6 +6,7 @@ namespace AndreasHGK\RankSystem\command;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\Plugin;
@@ -25,12 +26,12 @@ abstract class BaseCommand extends Command implements PluginOwned {
      * Create a permission for the command and add it
      *
      * @param string $perm
-     * @param string $default
      * @return Permission
      */
-    public function createPermission(string $perm, string $default = Permission::DEFAULT_OP) : Permission {
-        $permission = new Permission($perm, $default);
-        PermissionManager::getInstance()->addPermission($permission);
+    public function createPermission(string $perm) : Permission {
+        $permission = new Permission($perm);
+        $opRoot = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_OPERATOR);
+        DefaultPermissions::registerPermission($permission, [$opRoot]);
         $this->setPermission($perm);
         return $permission;
     }

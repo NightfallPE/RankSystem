@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace AndreasHGK\RankSystem\command;
 
+use AndreasHGK\Core\user\UserManager;
 use AndreasHGK\RankSystem\rank\RankInstance;
 use AndreasHGK\RankSystem\RankSystem;
 use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;
 
@@ -27,16 +29,23 @@ class RemoverankCommand extends BaseCommand {
         }
 
         $targetName = array_shift($args);
-        $target = Server::getInstance()->getPlayer($targetName);
-        //todo: offline sessions + saving
+        $target = Server::getinstance()->getPlayerByPrefix($targetName);
 
         if($target === null) {
+            $target = Server::getInstance()->getOfflinePlayer($targetName);
+        }
+
+        if(!$target->hasPlayedBefore() && !$target instanceof Player) {
             $sender->sendMessage("§r§c§l> §r§7The provided player could not be found.");
             return;
         }
 
-        $sessionManager = RankSystem::getInstance()->getSessionManager();
-        $targetSession = $sessionManager->getSession($target);
+        $user = UserManager::getInstance()->get($target);
+
+        if($user === null) {
+            $sender->sendMessage("§r§c§l> §r§7The provided player has no associated data.");
+            return;
+        }
 
         if(!isset($args[0])) {
             $this->sendUsage($sender);
@@ -51,9 +60,10 @@ class RemoverankCommand extends BaseCommand {
             return;
         }
 
-        $targetSession->removeRank($rank->getId());
+        $user->getRankComponent()->removeRank($rank->getId());
+        UserManager::getInstance()->save($user);
 
-        $sender->sendMessage("§r§6§l> §r§7The §r§6{$rank->getName()}§r§7 rank has been removed from §r§6{$target->getName()}§r§7.");
+        $sender->sendMessage("§r§a§l> §r§7The §r§a{$rank->getName()}§r§7 rank has been removed from §r§a{$target->getName()}§r§7.");
     }
 
     /**
@@ -62,7 +72,7 @@ class RemoverankCommand extends BaseCommand {
      * @param CommandSender $sender
      */
     public function sendUsage(CommandSender $sender) : void {
-        $sender->sendMessage("§r§c§l> §r§7Usage: §r§6".$this->getUsage());
+        $sender->sendMessage("§r§c§l> §r§7Usage: §r§a".$this->getUsage());
     }
 
 }

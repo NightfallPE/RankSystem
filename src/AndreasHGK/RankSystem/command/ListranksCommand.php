@@ -20,12 +20,12 @@ class ListranksCommand extends BaseCommand {
     public function onCommand(CommandSender $sender, string $commandLabel, array $args) : void {
         $rankManager = RankSystem::getInstance()->getRankManager();
 
-        $str = "§r§8<--§r§6NF§r§8-->\n§r§7 List of available ranks§r";
+        $str = "§r§8<--§r§aNF§r§8-->\n§r§7 List of available ranks§r";
 
         foreach($rankManager->getAll() as $rank) {
-            $str .= "\n§r§8 - §r§7Id: §r§6{$rank->getId()}"
-                ."§r§8 | §r§7Name: §r§6{$rank->getName()}"
-                ."§r§8 | §r§7Priority: §r§6{$rank->getPriority()}";
+            $str .= "\n§r§8 - §r§7Id: §r§a{$rank->getId()}"
+                ."§r§8 | §r§7Name: §r§a{$rank->getName()}"
+                ."§r§8 | §r§7Priority: §r§a{$rank->getPriority()}";
         }
 
         $sender->sendMessage($str."\n§r§8§l<--++-->⛏");

@@ -9,10 +9,11 @@ use AndreasHGK\RankSystem\command\ListranksCommand;
 use AndreasHGK\RankSystem\command\PlayerranksCommand;
 use AndreasHGK\RankSystem\command\RankinfoCommand;
 use AndreasHGK\RankSystem\command\RemoverankCommand;
-use AndreasHGK\RankSystem\listener\SessionListener;
 use AndreasHGK\RankSystem\provider\RankProvider;
 use AndreasHGK\RankSystem\rank\RankManager;
-use AndreasHGK\RankSystem\session\SessionManager;
+use AndreasHGK\RankSystem\task\RankExpireTask;
+use AndreasHGK\RankSystem\task\RankSystemTask;
+use AndreasHGK\RankSystem\utils\InvalidArgumentException;
 use pocketmine\plugin\PluginBase;
 
 class RankSystem extends PluginBase{
@@ -29,24 +30,15 @@ class RankSystem extends PluginBase{
 
 
     /** @var RankManager */
-    private $rankManager;
-    /** @var SessionManager */
-    private $sessionManager;
+    private RankManager $rankManager;
     /** @var RankProvider */
-    private $rankProvider;
+    private RankProvider $rankProvider;
 
     /**
      * @return RankManager
      */
     public function getRankManager() : RankManager {
         return $this->rankManager;
-    }
-
-    /**
-     * @return SessionManager
-     */
-    public function getSessionManager() : SessionManager {
-        return $this->sessionManager;
     }
 
     /**
@@ -63,12 +55,25 @@ class RankSystem extends PluginBase{
         $this->rankProvider = new RankProvider();
         $this->rankManager = new RankManager();
         $this->rankManager->load();
-        $this->sessionManager = new SessionManager();
     }
 
     public function onEnable() {
+        $this->registerTasks();
         $this->registerListeners();
         $this->registerCommands();
+    }
+
+    /**
+     * Register the tasks for the plugin
+     */
+    public function registerTasks() : void {
+        $tasks = [
+            new RankExpireTask(),
+        ];
+        foreach($tasks as $task) {
+            if(!$task instanceof RankSystemTask) throw new InvalidArgumentException("Tasks must extend RankSystemTask");
+            $this->getScheduler()->scheduleDelayedRepeatingTask($task, $task->getDelay(), $task->getRepeat());
+        }
     }
 
     /**
@@ -76,7 +81,7 @@ class RankSystem extends PluginBase{
      */
     public function registerListeners() : void {
         $listeners = [
-            new SessionListener(),
+
         ];
         foreach($listeners as $listener) {
             $this->getServer()->getPluginManager()->registerEvents($listener, $this);

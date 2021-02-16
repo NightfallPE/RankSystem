@@ -12,9 +12,9 @@ use pocketmine\utils\Config;
 class RankProvider {
 
     /** @var Config */
-    private $ranks;
+    private Config $ranks;
     /** @var RankSystem */
-    private $plugin;
+    private RankSystem $plugin;
 
     public function __construct() {
         $this->plugin = RankSystem::getInstance();

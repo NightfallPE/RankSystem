@@ -33,11 +33,11 @@ class RankinfoCommand extends BaseCommand {
             return;
         }
 
-        $str = "§r§8<--§r§6NF§r§8-->\n§r§7 Rank §r§6{$rank->getName()}§r§7 info";
+        $str = "§r§8<--§r§aNF§r§8-->\n§r§7 Rank §r§a{$rank->getName()}§r§7 info";
 
-        $str .= "\n §r§l§8> §r§7ID: §r§6{$rank->getId()}";
-        $str .= "\n §r§l§8> §r§7Name: §r§6{$rank->getName()}";
-        $str .= "\n §r§l§8> §r§7Priority: §r§6{$rank->getPriority()}";
+        $str .= "\n §r§l§8> §r§7ID: §r§a{$rank->getId()}";
+        $str .= "\n §r§l§8> §r§7Name: §r§a{$rank->getName()}";
+        $str .= "\n §r§l§8> §r§7Priority: §r§a{$rank->getPriority()}";
         $str .= "\n §r§l§8> §r§7Prefix: §r§f{$rank->getPrefix()}";
 
         $inh = [];
@@ -45,7 +45,7 @@ class RankinfoCommand extends BaseCommand {
             $inh[] = "{$inherit->getName()}";
         }
 
-        $str .= "\n §r§l§8> §r§7Inheritance: §r§6".implode("§r§8,§r§6 ", $inh);
+        $str .= "\n §r§l§8> §r§7Inheritance: §r§a".implode("§r§8,§r§a ", $inh);
 
         $sender->sendMessage($str."\n§r§8§l<--++-->⛏");
     }

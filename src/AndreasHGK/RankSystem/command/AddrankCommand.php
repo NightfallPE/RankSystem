@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace AndreasHGK\RankSystem\command;
 
+use AndreasHGK\Core\user\UserManager;
 use AndreasHGK\RankSystem\rank\RankInstance;
 use AndreasHGK\RankSystem\RankSystem;
+use AndreasHGK\RankSystem\utils\StringUtils;
 use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;
 
@@ -27,16 +30,23 @@ class AddrankCommand extends BaseCommand {
         }
 
         $targetName = array_shift($args);
-        $target = Server::getInstance()->getPlayer($targetName);
-        //todo: offline sessions + saving
+        $target = Server::getinstance()->getPlayerByPrefix($targetName);
 
         if($target === null) {
+            $target = Server::getInstance()->getOfflinePlayer($targetName);
+        }
+
+        if(!$target->hasPlayedBefore() && !$target instanceof Player) {
             $sender->sendMessage("§r§c§l> §r§7The provided player could not be found.");
             return;
         }
 
-        $sessionManager = RankSystem::getInstance()->getSessionManager();
-        $targetSession = $sessionManager->getSession($target);
+        $user = UserManager::getInstance()->get($target);
+
+        if($user === null) {
+            $sender->sendMessage("§r§c§l> §r§7The provided player has no associated data.");
+            return;
+        }
 
         if(!isset($args[0])) {
             $this->sendUsage($sender);
@@ -51,8 +61,14 @@ class AddrankCommand extends BaseCommand {
             return;
         }
 
+        $currentTime = time();
         if(isset($args[0])) {
-            $expire = -1; //todo
+            if(is_numeric($args[0])) {
+                $expire = $currentTime + (int)$args[0];
+            }else{
+                $sender->sendMessage("§r§c§l> §r§7The only currently supported syntax for rank expiration is expiration in seconds.");
+                return;
+            }
         }else{
             $expire = -1;
         }
@@ -62,9 +78,10 @@ class AddrankCommand extends BaseCommand {
             if(strtolower($args[1]) === "false") $persist = false;
         }
 
-        $targetSession->addRank(RankInstance::create($rank, -1, $persist));
+        $user->getRankComponent()->addRank(RankInstance::create($rank, $expire, $persist));
+        UserManager::getInstance()->save($user);
 
-        $sender->sendMessage("§r§6§l> §r§6{$target->getName()} §r§7has been given the §r§6{$rank->getName()}§r§7 rank that expires on §r§6never §r§7and with persist=§r§6".($persist ? "true" : "false")."§r§7.");
+        $sender->sendMessage("§r§a§l> §r§a{$target->getName()} §r§7has been given the §r§a{$rank->getName()}§r§7 rank that expires in §r§a".($expire === -1 ? "never" : StringUtils::intToTimeString($expire - $currentTime, true))." §r§7and with persist=§r§a".($persist ? "true" : "false")."§r§7.");
     }
 
     /**
@@ -73,7 +90,7 @@ class AddrankCommand extends BaseCommand {
      * @param CommandSender $sender
      */
     public function sendUsage(CommandSender $sender) : void {
-        $sender->sendMessage("§r§c§l> §r§7Usage: §r§6".$this->getUsage());
+        $sender->sendMessage("§r§c§l> §r§7Usage: §r§a".$this->getUsage());
     }
 
 }
