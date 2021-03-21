@@ -48,7 +48,7 @@ class RankSystem extends PluginBase{
         return $this->rankProvider;
     }
 
-    public function onLoad() {
+    public function onLoad() : void {
         self::$instance = $this;
         $this->saveResource("ranks.yml");
 
@@ -57,7 +57,7 @@ class RankSystem extends PluginBase{
         $this->rankManager->load();
     }
 
-    public function onEnable() {
+    public function onEnable() : void {
         $this->registerTasks();
         $this->registerListeners();
         $this->registerCommands();
